@@ -121,7 +121,7 @@ IMG_FILENAME = f"{IMAGE_PATH_SRC}/traffic.jpg"
 # IMG_FILENAME = f"{IMAGE_PATH_SRC}/dog.jpg"
 # IMG_FILENAME = f"{IMAGE_PATH_SRC}/cat.jpg"
 # IMG_FILENAME = f"{IMAGE_PATH_SRC}/tom_cruise.jpg"
-IMG_FILENAME = "mask1.png"
+# IMG_FILENAME = "mask1.png"
 # IMG_FILENAME = "dog1.jpg"
 
 THRESHOLD = 0.6
