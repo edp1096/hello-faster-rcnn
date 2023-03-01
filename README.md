@@ -26,7 +26,9 @@ python3 ./detect_coco.py
 ```
 
 
-## Face mask detection
-
-* Source - https://pseudo-lab.github.io/Tutorial-Book/chapters/object-detection/Ch5-Faster-R-CNN.html
-* Dataset - https://www.kaggle.com/datasets/andrewmvd/face-mask-detection
+## 출처
+* Face mask detection
+    * https://pseudo-lab.github.io/Tutorial-Book/chapters/object-detection/Ch5-Faster-R-CNN.html
+    * Dataset - https://www.kaggle.com/datasets/andrewmvd/face-mask-detection
+* Detection
+    * https://haochen23.github.io/2020/04/object-detection-faster-rcnn.html
