@@ -1,6 +1,12 @@
 # Faster R-CNN 찍먹
 
 
+## 찍먹들
+
+* ArcFace - https://github.com/edp1096/hello-arcface
+* Faster R-CNN - https://github.com/edp1096/hello-faster-rcnn
+
+
 ## 실행
 
 * 마스크
