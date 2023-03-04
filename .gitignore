@@ -2,3 +2,6 @@ __pycache__
 *.pt
 /archive.zip
 /archive
+/data/src
+/data/dst
+/data/face_nemo

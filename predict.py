@@ -33,7 +33,6 @@ in_features = model.roi_heads.box_predictor.cls_score.in_features
 model.roi_heads.box_predictor = FastRCNNPredictor(in_features, CLASS_COUNT)
 
 model.load_state_dict(torch.load(f"model_{DATASET_NAME}_{EPOCHS}.pt"))
-
 model.to(device)
 # print(model)
 
@@ -42,9 +41,9 @@ model.eval()
 
 xfrm = transforms.ToTensor()
 
-IMG_FILENAME = "mask1.png"
+# IMG_FILENAME = "mask1.png"
+IMG_FILENAME = "cat1.jpg"
 # IMG_FILENAME = "dog1.jpg"
-# IMG_FILENAME = "dog_0.99.jpg"
 
 img = xfrm(getImage(IMG_FILENAME)).to(device)
 # imgs = list([getImage(IMG_FILENAME)])
