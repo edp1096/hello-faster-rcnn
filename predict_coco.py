@@ -4,7 +4,7 @@ import torchvision
 from torchvision import models, transforms
 
 from modules.plot import combineImageWithPrediction, showImageResult
-from modules.image import getImage, cropImages, saveImages
+from modules.image import getImage, cropImage, saveImages
 from modules.prediction import getPredictionsCOCO
 
 import os
@@ -133,8 +133,8 @@ xfrm_img = xfrm(img)
 boxes, classes, scores = getPredictionsCOCO(xfrm_img, model, THRESHOLD, COCO_CLASS_NAMES)
 img_predicted = combineImageWithPrediction(img.copy(), boxes, classes, scores)
 
-imgs_cropped = cropImages(img, boxes)
-saveImages(IMAGE_PATH_DST, imgs_cropped, boxes, classes, scores)
+imgs_cropped = cropImage(img, boxes)
+saveImages(IMAGE_PATH_DST, imgs_cropped, classes, scores)
 
 print("boxes:", boxes)
 print("classes:", classes)

@@ -4,11 +4,10 @@ import torch
 
 def getPredictionsCOCO(img, model, threshold, class_names):
     model.eval()
-
     with torch.no_grad():
         preds = model([img])
 
-    scores = list(preds[0]["scores"].detach().numpy())
+    scores = list(preds[0]["scores"].cpu().detach().numpy())
 
     cutline_idx = 0
     for x in scores:
@@ -16,11 +15,13 @@ def getPredictionsCOCO(img, model, threshold, class_names):
             cutline_idx = scores.index(x)
 
     classes = []
-    for i in list(preds[0]["labels"].numpy()):
+    # for i in list(preds[0]["labels"].cpu().detach().numpy()):
+    for i in list(preds[0]["labels"]):
         classes.append(class_names[i])
 
     boxes = []
-    for i in list(preds[0]["boxes"].detach().numpy()):
+    # for i in list(preds[0]["boxes"].cpu().detach().numpy()):
+    for i in list(preds[0]["boxes"]):
         boxes.append([(i[0], i[1]), (i[2], i[3])])
 
     boxes = boxes[: cutline_idx + 1]

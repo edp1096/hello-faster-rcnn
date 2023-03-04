@@ -42,8 +42,8 @@ model.eval()
 xfrm = transforms.ToTensor()
 
 # IMG_FILENAME = "mask1.png"
-IMG_FILENAME = "cat1.jpg"
-# IMG_FILENAME = "dog1.jpg"
+# IMG_FILENAME = "cat1.jpg"
+IMG_FILENAME = "dog1.jpg"
 
 img = xfrm(getImage(IMG_FILENAME)).to(device)
 # imgs = list([getImage(IMG_FILENAME)])
