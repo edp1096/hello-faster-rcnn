@@ -20,7 +20,7 @@ python3 ./train_model.py
 python3 ./test_model.py
 ```
 
-* MS-COCO
+* Detect object using COCO pretrained
 ```sh
 python3 ./detect_coco.py
 ```
