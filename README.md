@@ -11,7 +11,7 @@
 
 * 마스크 데이터셋 분리
 ```sh
-python3 utils/split_dataset.py
+python3 scripts/split_dataset.py
 ```
 
 * 마스크
