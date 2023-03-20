@@ -27,7 +27,7 @@ python3 ./detect_coco.py
 ```
 
 
-## 출처
+## ~~출처~~ 참고
 * Face mask detection
     * https://pseudo-lab.github.io/Tutorial-Book/chapters/object-detection/Ch5-Faster-R-CNN.html
     * Dataset - https://www.kaggle.com/datasets/andrewmvd/face-mask-detection
