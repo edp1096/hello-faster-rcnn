@@ -40,3 +40,4 @@ python3 ./detect_coco.py
         * https://github.com/sovit-123/fasterrcnn-pytorch-training-pipeline
     * https://medium.com/analytics-vidhya/fpn-feature-pyramid-networks-77d8be41817c
         * https://github.com/potterhsu/easy-fpn.pytorch
+    * https://johschmidt42.medium.com/train-your-own-object-detector-with-faster-rcnn-pytorch-8d3c759cfc70
