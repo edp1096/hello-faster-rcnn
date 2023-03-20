@@ -34,3 +34,4 @@ python3 ./detect_coco.py
 * Detection
     * https://haochen23.github.io/2020/04/object-detection-faster-rcnn.html
 * https://www.kaggle.com/code/sovitrath/fasterrcnn-efficientnet-training
+    * https://github.com/sovit-123/fasterrcnn-pytorch-training-pipeline
