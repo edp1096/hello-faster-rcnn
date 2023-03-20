@@ -21,8 +21,8 @@ data_transform = transforms.ToTensor()
 train_dataset = MaskDataset(data_transform, f"{DATA_ROOT}/train", parse_mode=PARSE_MODE)
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, collate_fn=collate_fn, shuffle=True)
 
-model = models.detection.fasterrcnn_resnet50_fpn(
-    weights=models.detection.FasterRCNN_ResNet50_FPN_Weights.COCO_V1,
+model = models.detection.fasterrcnn_resnet50_fpn_v2(
+    weights=models.detection.FasterRCNN_ResNet50_FPN_V2_Weights.COCO_V1,
     weights_backbone=models.ResNet50_Weights.IMAGENET1K_V1,
 )
 in_features = model.roi_heads.box_predictor.cls_score.in_features

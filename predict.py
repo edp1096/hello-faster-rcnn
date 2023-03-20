@@ -28,7 +28,7 @@ for i in range(CLASS_COUNT):
     colors.append((random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1)))
 
 
-model = models.detection.fasterrcnn_resnet50_fpn()
+model = models.detection.fasterrcnn_resnet50_fpn_v2()
 in_features = model.roi_heads.box_predictor.cls_score.in_features
 model.roi_heads.box_predictor = FastRCNNPredictor(in_features, CLASS_COUNT)
 
@@ -41,9 +41,9 @@ model.eval()
 
 xfrm = transforms.ToTensor()
 
-# IMG_FILENAME = "mask1.png"
-# IMG_FILENAME = "cat1.jpg"
-IMG_FILENAME = "dog1.jpg"
+IMG_FILENAME = "data/sample/mask1.png"
+# IMG_FILENAME = "data/sample/cat1.jpg"
+# IMG_FILENAME = "data/sample/dog1.jpg"
 
 img = xfrm(getImage(IMG_FILENAME)).to(device)
 # imgs = list([getImage(IMG_FILENAME)])

@@ -105,15 +105,15 @@ COCO_CLASS_NAMES = [
 ]
 
 
-model = torchvision.models.detection.fasterrcnn_resnet50_fpn(
-    weights=models.detection.FasterRCNN_ResNet50_FPN_Weights.COCO_V1,
+model = torchvision.models.detection.fasterrcnn_resnet50_fpn_v2(
+    weights=models.detection.FasterRCNN_ResNet50_FPN_V2_Weights.COCO_V1,
     weights_backbone=models.ResNet50_Weights.IMAGENET1K_V1,
 )
 
 xfrm = transforms.Compose([transforms.ToTensor()])
 
 
-DATA_ROOT = "data/coco"
+DATA_ROOT = "data/sample"
 IMAGE_PATH_SRC = os.path.join(DATA_ROOT, "original")
 IMAGE_PATH_DST = os.path.join(DATA_ROOT, "cropped")
 

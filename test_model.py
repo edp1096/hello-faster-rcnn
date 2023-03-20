@@ -35,7 +35,7 @@ data_transform = transforms.ToTensor()
 test_dataset = MaskDataset(data_transform, f"{DATA_ROOT}/test", parse_mode=PARSE_MODE)
 test_data_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, collate_fn=collate_fn, shuffle=True)
 
-model = models.detection.fasterrcnn_resnet50_fpn()
+model = models.detection.fasterrcnn_resnet50_fpn_v2()
 in_features = model.roi_heads.box_predictor.cls_score.in_features
 model.roi_heads.box_predictor = FastRCNNPredictor(in_features, CLASS_COUNT)
 
