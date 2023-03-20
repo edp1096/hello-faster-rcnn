@@ -33,3 +33,4 @@ python3 ./detect_coco.py
     * Dataset - https://www.kaggle.com/datasets/andrewmvd/face-mask-detection
 * Detection
     * https://haochen23.github.io/2020/04/object-detection-faster-rcnn.html
+* https://www.kaggle.com/code/sovitrath/fasterrcnn-efficientnet-training
