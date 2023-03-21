@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms, datasets, models
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
-from modules.dataset import MaskDataset
+from modules.dataset import FacialBoxDataset
 from modules.prediction import getPredictions
 from modules.plot import plotImage, plotImageCV
 from modules.stats import getBatchStats, getAveragePrecisions
@@ -32,14 +32,19 @@ def collate_fn(batch):
 
 
 data_transform = transforms.ToTensor()
-test_dataset = MaskDataset(data_transform, f"{DATA_ROOT}/test", parse_mode=PARSE_MODE)
-test_data_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, collate_fn=collate_fn, shuffle=True)
+
+test_set_path = f"{DATA_ROOT}/test"
+image_path, annotation_path = f"{DATA_TEST_ROOT}/images", f"{DATA_TEST_ROOT}/annotations"
+
+test_set = FacialBoxDataset(image_path, annotation_path, transforms=None, parse_mode=PARSE_MODE)
+test_set.transforms = data_transform
+test_data_loader = DataLoader(test_set, batch_size=BATCH_SIZE, collate_fn=collate_fn, shuffle=True)
 
 model = models.detection.fasterrcnn_resnet50_fpn_v2()
 in_features = model.roi_heads.box_predictor.cls_score.in_features
 model.roi_heads.box_predictor = FastRCNNPredictor(in_features, CLASS_COUNT)
 
-model.load_state_dict(torch.load(f"model_{DATASET_NAME}_{EPOCHS}.pt"))
+model.load_state_dict(torch.load(WEIGHT_FILE)["model"])
 
 model.to(device)
 # print(model)

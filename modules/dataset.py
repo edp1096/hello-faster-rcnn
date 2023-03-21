@@ -4,6 +4,7 @@ import os
 from PIL import Image
 from bs4 import BeautifulSoup
 import json
+import numpy as np
 
 adjust_label = 1  # For background
 
@@ -27,7 +28,7 @@ def getLabel(obj):
     return 0 + adjust_label
 
 
-def generate_target(file, mode):
+def createAnnotations(file, mode):
     boxes = []
     labels = []
 
@@ -37,7 +38,7 @@ def generate_target(file, mode):
         if mode == "json":
             jdata = json.loads(data)
 
-            if "shapes" in jdata and  len(jdata["shapes"]) > 0:
+            if "shapes" in jdata and len(jdata["shapes"]) > 0:
                 if "points" in jdata["shapes"][0] and len(jdata["shapes"][0]["points"]) > 1:
                     box = [
                         jdata["shapes"][0]["points"][0][0],
@@ -53,50 +54,57 @@ def generate_target(file, mode):
 
                     boxes.append(box)
                     labels.append(0 + adjust_label)
-        else:
+        elif mode == "xml":
             soup = BeautifulSoup(data, "html.parser")
             objects = soup.find_all("object")
-            num_objs = len(objects)
 
             for obj in objects:
                 boxes.append(getBoxPoints(obj))
                 labels.append(getLabel(obj))
+        else:
+            # single line csv
+            boxes = np.array([np.fromstring(data, sep=",", dtype=np.float32)])
+            labels = [1, 2]  # background, object(bbox)
 
         boxes = torch.as_tensor(boxes, dtype=torch.float32)
         labels = torch.as_tensor(labels, dtype=torch.int64)
 
-        target = {}
-        target["boxes"] = boxes
-        target["labels"] = labels
+        annotations = {}
+        annotations["boxes"] = boxes
+        annotations["labels"] = labels
 
-        return target
+        return annotations
 
 
-class MaskDataset(object):
-    def __init__(self, transforms, data_path, parse_mode=None):
+class FacialBoxDataset(object):
+    def __init__(self, image_path, annotation_path, transforms, parse_mode=None):
         self.transforms = transforms
-        self.path = data_path
-        self.imgs = list(sorted(os.listdir(os.path.join(self.path, "images"))))
-        self.mode = "xml"
-        self.file_ext = "xml"
-        if parse_mode is not None and parse_mode.lower() in ["xml", "json"]:
-            self.mode = parse_mode.lower()
-            self.file_ext = self.mode
+
+        self.images, self.boxpoints = [], []
+        for i, fname in enumerate(os.listdir(image_path)):
+            fname_base = os.path.splitext(fname)[0]
+
+            # Load image
+            im_fpath = os.path.join(image_path, fname)
+            image = Image.open(im_fpath).convert("RGB")
+            self.images.append(image)
+
+            # Load boxpoints
+            self.mode = "xml"
+            if parse_mode is not None and parse_mode.lower() in ["xml", "json", "csv"]:
+                self.mode = parse_mode.lower()
+                label_path = os.path.join(annotation_path, f"{fname_base}.{self.mode}")
+                annotations = createAnnotations(label_path, self.mode)
+                self.boxpoints.append(annotations)
 
     def __getitem__(self, idx):
-        file_image = self.imgs[idx]
-        file_label = self.imgs[idx][:-3] + self.file_ext
-
-        img_path = os.path.join(self.path, "images", file_image)
-        label_path = os.path.join(self.path, "annotations", file_label)
-
-        img = Image.open(img_path).convert("RGB")
-        target = generate_target(label_path, self.mode)  # Generate Label
+        image = self.images[idx]
+        annotations = self.boxpoints[idx]
 
         if self.transforms is not None:
-            img = self.transforms(img)
+            image = self.transforms(image)
 
-        return img, target
+        return image, annotations
 
     def __len__(self):
-        return len(self.imgs)
+        return len(self.images)
