@@ -5,4 +5,6 @@ __pycache__
 /data/src
 /data/dst
 /data/face_nemo
-/dog0.jpg
+/data/lfw_dst
+/data/vggface_dst
+/weights
