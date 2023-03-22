@@ -9,7 +9,10 @@ from modules.prediction import getPredictionsCOCO
 
 import os
 
+# person index = 1
+# cat index = 17
 # dog index = 18
+# horse index = 19
 COCO_CLASS_NAMES = [
     "__background__",
     "person",
@@ -117,13 +120,10 @@ DATA_ROOT = "data/sample"
 IMAGE_PATH_SRC = os.path.join(DATA_ROOT, "original")
 IMAGE_PATH_DST = os.path.join(DATA_ROOT, "cropped")
 
-IMG_FILENAME = f"{IMAGE_PATH_SRC}/traffic.jpg"
-# IMG_FILENAME = f"{IMAGE_PATH_SRC}/dog.jpg"
-# IMG_FILENAME = f"{IMAGE_PATH_SRC}/cat.jpg"
-# IMG_FILENAME = f"{IMAGE_PATH_SRC}/tom_cruise.jpg"
-# IMG_FILENAME = "mask1.png"
-# IMG_FILENAME = "cat1.jpg"
-# IMG_FILENAME = "dog1.jpg"
+IMG_FILENAME = f"{DATA_ROOT}/traffic.jpg"
+# IMG_FILENAME = f"{DATA_ROOT}/dog0.jpg"
+# IMG_FILENAME = f"{DATA_ROOT}/cat0.jpg"
+# IMG_FILENAME = f"{DATA_ROOT}/tom_cruise.jpg"
 
 THRESHOLD = 0.6
 

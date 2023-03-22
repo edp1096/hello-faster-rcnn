@@ -26,7 +26,7 @@ for pet_class in os.listdir(SOURCE_DIR):
     # get random images
     flist = np.array(os.listdir(dir))
     image_flist = [file for file in flist if file.split(".")[-1] == "jpg" or file.split(".")[-1] == "png"]
-    count_max = min(len(image_flist), image_limit_per_subdir)
+    count_max = min(int(len(image_flist) / 2), image_limit_per_subdir)
     random_flist = np.random.choice(image_flist, count_max, replace=False)
 
     total_count = len(random_flist)

@@ -15,13 +15,14 @@ import random
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print("Device:", device)
+print(f"PyTorch version: {torch.__version__}, Device: {device}")
 
 torch.manual_seed(777)
 if device == "cuda":
     torch.cuda.manual_seed_all(777)
 
-LABELS = ["", "no mask", "mask", "wrong mask"]
+# LABELS = ["", "no mask", "mask", "wrong mask"]
+LABELS = ["", "face"]
 
 colors = []
 for i in range(CLASS_COUNT):
@@ -32,18 +33,22 @@ model = models.detection.fasterrcnn_resnet50_fpn_v2()
 in_features = model.roi_heads.box_predictor.cls_score.in_features
 model.roi_heads.box_predictor = FastRCNNPredictor(in_features, CLASS_COUNT)
 
-model.load_state_dict(torch.load(f"model_{DATASET_NAME}_{EPOCHS}.pt"))
+model.load_state_dict(torch.load(WEIGHT_FILE)["model"])
 model.to(device)
-# print(model)
 
 model.eval()
-
-
 xfrm = transforms.ToTensor()
 
-IMG_FILENAME = "data/sample/mask1.png"
+# IMG_FILENAME = "data/sample/mask1.png"
+# IMG_FILENAME = "data/sample/mask.png"
+IMG_FILENAME = "data/sample/human0.jpg"
+# IMG_FILENAME = "data/sample/human1.jpg"
+# IMG_FILENAME = "data/sample/human2.jpg"
+# IMG_FILENAME = "data/sample/traffic.jpg"
 # IMG_FILENAME = "data/sample/cat1.jpg"
+# IMG_FILENAME = "data/sample/dog0.jpg"
 # IMG_FILENAME = "data/sample/dog1.jpg"
+# IMG_FILENAME = "data/sample/dog2.jpg"
 
 img = xfrm(getImage(IMG_FILENAME)).to(device)
 # imgs = list([getImage(IMG_FILENAME)])

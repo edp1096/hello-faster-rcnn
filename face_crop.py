@@ -13,17 +13,15 @@ from modules.prediction import getPredictions, getPredictionsCOCO
 import os
 
 
-device = "cpu"
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print("Device:", device)
+# device = "cpu"
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"PyTorch version: {torch.__version__}, Device: {device}")
 
 
 SAVE_PATH = "z_crop_result"
-MODEL_FILENAME = "model_face_crop.pt"
-RESIZE_W = 224
-RESIZE_H = 224
-# RESIZE_W = 512
-# RESIZE_H = 512
+# RESIZE_W, RESIZE_H = 224, 224
+RESIZE_W, RESIZE_H = 384, 384
+# RESIZE_W, RESIZE_H = 512, 512
 
 FACE_LABELS = ["", "face"]
 COCO_CLASS_NAMES = [
@@ -121,30 +119,29 @@ COCO_CLASS_NAMES = [
 ]
 
 
-model_crop_body = torchvision.models.detection.fasterrcnn_resnet50_fpn(
-    weights=models.detection.FasterRCNN_ResNet50_FPN_Weights.COCO_V1,
+model_detect_body = torchvision.models.detection.fasterrcnn_resnet50_fpn_v2(
+    weights=models.detection.FasterRCNN_ResNet50_FPN_V2_Weights.COCO_V1,
     weights_backbone=models.ResNet50_Weights.IMAGENET1K_V1,
 )
 
-model_crop_face = models.detection.fasterrcnn_resnet50_fpn()
-in_features = model_crop_face.roi_heads.box_predictor.cls_score.in_features
-model_crop_face.roi_heads.box_predictor = FastRCNNPredictor(in_features, CLASS_COUNT)
+model_detect_face = models.detection.fasterrcnn_resnet50_fpn_v2()
+in_features = model_detect_face.roi_heads.box_predictor.cls_score.in_features
+model_detect_face.roi_heads.box_predictor = FastRCNNPredictor(in_features, CLASS_COUNT)
 
-model_crop_face.load_state_dict(torch.load(MODEL_FILENAME))
+model_detect_face.load_state_dict(torch.load(WEIGHT_FILE)["model"])
 
-model_crop_body.to(device)
-model_crop_face.to(device)
+model_detect_body.to(device)
+model_detect_face.to(device)
 
-model_crop_body.eval()
-model_crop_face.eval()
-
+model_detect_body.eval()
+model_detect_face.eval()
 
 xfrm = transforms.ToTensor()
 COCO_THRESHOLD = 0.6
 
 
 def cropBody(img, xfrm_img):
-    boxes, classes, scores = getPredictionsCOCO(xfrm_img, model_crop_body, COCO_THRESHOLD, COCO_CLASS_NAMES)
+    boxes, classes, scores = getPredictionsCOCO(xfrm_img, model_detect_body, COCO_THRESHOLD, COCO_CLASS_NAMES)
 
     body_boxes = []
     body_classes = []
@@ -163,7 +160,7 @@ def cropBody(img, xfrm_img):
 
 def cropFace(img):
     with torch.no_grad():
-        preds = getPredictions(model_crop_face, [img], 0.6)
+        preds = getPredictions(model_detect_face, [img], 0.6)
 
     t_boxes = preds[0]["boxes"]
     t_classes = preds[0]["labels"]
@@ -186,23 +183,41 @@ def cropFace(img):
     return imgs_croped, boxes, classes, scores
 
 
-img = getImage("dog0.jpg")
-xfrm_img = xfrm(img).to(device)
+def cropMain():
+    fnames = [
+        "data/sample/human0.jpg",
+        "data/sample/human1.jpg",
+        "data/sample/human2.jpg",
+    ]
+    # fnames = [
+    #     "data/sample/dog0.jpg",
+    #     "data/sample/dog1.jpg",
+    #     "data/sample/dog2.jpg",
+    # ]
 
-body_imgs, body_boxes, body_classes, body_scores = cropBody(img, xfrm_img)
-xfrm_body_imgs = [xfrm(im).to(device) for im in body_imgs]
-face_imgs, face_boxes, face_classes, face_scores = cropFace(xfrm_body_imgs[0])
+    for i, fname in enumerate(fnames):
+        img = getImage(fname)
+        xfrm_img = xfrm(img).to(device)
 
+        body_imgs, body_boxes, body_classes, body_scores = cropBody(img, xfrm_img)
+        xfrm_body_imgs = [xfrm(im).to(device) for im in body_imgs]
 
-result_imgs = []
-for im in face_imgs:
-    size = min(im.shape[1], im.shape[2])
-    im = TF.center_crop(im, size)
-    im = TF.resize(im, (RESIZE_W, RESIZE_H))
+        if len(xfrm_body_imgs) > 0:
+            face_imgs, face_boxes, face_classes, face_scores = cropFace(xfrm_body_imgs[0])
+        else:
+            print(f"no body detected, try to find face: {i} - {fname}")
+            face_imgs, face_boxes, face_classes, face_scores = cropFace(xfrm_img)
 
-    result_imgs.append(im)
+        os.makedirs(SAVE_PATH, exist_ok=True)
 
-os.makedirs(SAVE_PATH, exist_ok=True)
+        # result_imgs = []
+        # for im in face_imgs:
+        #     size = min(im.shape[1], im.shape[2])
+        #     im = TF.center_crop(im, size)
+        #     im = TF.resize(im, (RESIZE_W, RESIZE_H), antialias=False)
+        #     result_imgs.append(im)
 
+        result_imgs = face_imgs
+        saveImages(SAVE_PATH, result_imgs, face_classes, face_scores, color_range=255, filename=i)
 
-saveImages(SAVE_PATH, result_imgs, face_classes, face_scores, color_range=255, filename="face1")
+cropMain()

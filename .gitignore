@@ -8,3 +8,4 @@ __pycache__
 /data/lfw_dst
 /data/vggface_bbox_dst
 /weights
+/z_crop_result

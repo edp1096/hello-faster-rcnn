@@ -15,7 +15,7 @@ import random
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print("Device:", device)
+print(f"PyTorch version: {torch.__version__}, Device: {device}")
 
 torch.manual_seed(777)
 if device == "cuda":
@@ -27,6 +27,7 @@ LABELS = ["", "face"]
 colors = []
 for i in range(CLASS_COUNT):
     colors.append((random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1)))
+
 
 def collate_fn(batch):
     return tuple(zip(*batch))
@@ -49,9 +50,7 @@ model.eval()
 
 for imgs, annotations in test_data_loader:
     imgs = list(img.to(device) for img in imgs)
-
     preds = getPredictions(model, imgs, 0.5)
-
     break
 
 _idx = random.randint(0, len(annotations) - 1)  # 랜덤 숫자
