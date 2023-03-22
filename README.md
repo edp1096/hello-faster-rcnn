@@ -33,8 +33,3 @@ python3 ./detect_coco.py
     * Dataset - https://www.kaggle.com/datasets/andrewmvd/face-mask-detection
 * Detection
     * https://haochen23.github.io/2020/04/object-detection-faster-rcnn.html
-* 갖다 붙이기
-    * https://www.kaggle.com/code/sovitrath/fasterrcnn-efficientnet-training
-        * https://github.com/sovit-123/fasterrcnn-pytorch-training-pipeline
-    * https://medium.com/analytics-vidhya/fpn-feature-pyramid-networks-77d8be41817c
-        * https://github.com/potterhsu/easy-fpn.pytorch
