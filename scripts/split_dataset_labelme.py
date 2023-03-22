@@ -14,7 +14,7 @@ os.makedirs(f"{TARGET_DIR}/test", exist_ok=True)
 os.makedirs(f"{TARGET_DIR}/test/images", exist_ok=True)
 os.makedirs(f"{TARGET_DIR}/test/annotations", exist_ok=True)
 
-
+image_limit_per_subdir = 20
 image_train_count = 0
 image_test_count = 0
 for pet_class in os.listdir(SOURCE_DIR):
@@ -22,12 +22,19 @@ for pet_class in os.listdir(SOURCE_DIR):
     dir = SOURCE_DIR + "/" + pet_class
     class_name = pet_class.replace("new_", "")
 
-    total_count = len(os.listdir(dir))
+    sub_total_cnt = 0
+    # get random images
+    flist = np.array(os.listdir(dir))
+    image_flist = [file for file in flist if file.split(".")[-1] == "jpg" or file.split(".")[-1] == "png"]
+    count_max = min(len(image_flist), image_limit_per_subdir)
+    random_flist = np.random.choice(image_flist, count_max, replace=False)
+
+    total_count = len(random_flist)
     train_count = int(total_count * 0.8)
     test_count = int(total_count * 0.2)
 
-    sub_total_cnt = 0
-    for file in np.array(os.listdir(dir)):
+    # for file in np.array(os.listdir(dir)):
+    for file in random_flist:
         fname = file.split(".")[0]
         ext = file.split(".")[-1]
 

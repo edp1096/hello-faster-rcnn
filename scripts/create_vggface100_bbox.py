@@ -2,6 +2,8 @@ import os, random
 import pandas as pd
 from PIL import Image
 from shutil import copyfile
+import numpy as np
+
 
 DATA_SRC_ROOT = "D:/dev/datasets/VGG-Face2"
 # DATA_SRC_ROOT = "data/vggface_src"
@@ -15,6 +17,7 @@ ANNOTATION_TEST_PATH = f"{DATA_DST_ROOT}/test/annotations"
 
 
 person_limit = 100
+image_limit_per_person = 20
 
 selected_ids = []
 
@@ -42,7 +45,9 @@ os.makedirs(IMAGE_TEST_PATH, exist_ok=True)
 os.makedirs(ANNOTATION_TEST_PATH, exist_ok=True)
 
 image_count = 0
+image_count_per_person = 0
 person_count = 0
+random_image_values = np.random.randint(0, image_limit_per_person, person_limit)
 prev_person_id = ""
 mode = "train"
 for j, row in df_bbox.iterrows():
@@ -53,11 +58,16 @@ for j, row in df_bbox.iterrows():
         continue
 
     if person_id != prev_person_id:
+        image_count_per_person = 0
         person_count += 1
-        if mode != "test" and person_count >= person_limit * 0.8:
-            mode = "test"
-
         prev_person_id = person_id
+        mode = "train"
+
+    if mode != "test" and image_count_per_person >= image_limit_per_person * 0.8:
+        mode = "test"
+
+    if image_count_per_person >= image_limit_per_person:
+        continue
 
     # Prepare data
     target_image_path = IMAGE_TRAIN_PATH
@@ -99,6 +109,7 @@ for j, row in df_bbox.iterrows():
         f.write(",".join([str(point) for point in bbox]))
 
     image_count += 1
+    image_count_per_person += 1
 
     if image_count % 100 == 0:
         print("image_count:", image_count)

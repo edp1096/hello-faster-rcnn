@@ -59,8 +59,8 @@ for epoch in range(EPOCHS):
 
     # 모델 저장
     if train_loss < best_loss:
-        saveWeights(model.state_dict(), optimizer.state_dict(), best_loss, math.nan)  # Save weights
-        saveEpochInfo(epoch, train_loss, train_loss, math.nan, math.nan)  # Write epoch info
+        saveWeights(model.state_dict(), optimizer.state_dict(), best_loss, train_loss)  # Save weights
+        saveEpochInfo(epoch, train_loss, train_loss, math.nan, train_loss)  # Write epoch info
 
         best_epoch = epoch
         best_loss = train_loss

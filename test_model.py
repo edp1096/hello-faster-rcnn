@@ -21,7 +21,8 @@ torch.manual_seed(777)
 if device == "cuda":
     torch.cuda.manual_seed_all(777)
 
-LABELS = ["", "no mask", "mask", "wrong mask"]
+# LABELS = ["", "no mask", "mask", "wrong mask"]
+LABELS = ["", "face"]
 
 colors = []
 for i in range(CLASS_COUNT):
@@ -39,7 +40,7 @@ model = models.detection.fasterrcnn_resnet50_fpn_v2()
 in_features = model.roi_heads.box_predictor.cls_score.in_features
 model.roi_heads.box_predictor = FastRCNNPredictor(in_features, CLASS_COUNT)
 
-model.load_state_dict(torch.load(f"model_{DATASET_NAME}_{EPOCHS}.pt"))
+model.load_state_dict(torch.load(f"{WEIGHT_FILE}")["model"])
 
 model.to(device)
 # print(model)
