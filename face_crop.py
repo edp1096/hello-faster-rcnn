@@ -22,6 +22,8 @@ SAVE_PATH = "z_crop_result"
 MODEL_FILENAME = "model_face_crop.pt"
 RESIZE_W = 224
 RESIZE_H = 224
+# RESIZE_W = 512
+# RESIZE_H = 512
 
 FACE_LABELS = ["", "face"]
 COCO_CLASS_NAMES = [
@@ -196,7 +198,7 @@ result_imgs = []
 for im in face_imgs:
     size = min(im.shape[1], im.shape[2])
     im = TF.center_crop(im, size)
-    im = TF.resize(im, (224, 224))
+    im = TF.resize(im, (RESIZE_W, RESIZE_H))
 
     result_imgs.append(im)
 

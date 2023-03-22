@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms, datasets, models
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
-from modules.dataset import MaskDataset
+from modules.dataset import BoxDataset
 from modules.prediction import getPredictions
 from modules.plot import plotImage, plotImageCV
 from modules.stats import getBatchStats, getAveragePrecisions
@@ -32,7 +32,7 @@ def collate_fn(batch):
 
 
 data_transform = transforms.ToTensor()
-test_dataset = MaskDataset(data_transform, f"{DATA_ROOT}/test", parse_mode=PARSE_MODE)
+test_dataset = BoxDataset(data_transform, f"{DATA_ROOT}/test", parse_mode=PARSE_MODE)
 test_data_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, collate_fn=collate_fn, shuffle=True)
 
 model = models.detection.fasterrcnn_resnet50_fpn_v2()

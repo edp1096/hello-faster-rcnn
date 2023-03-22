@@ -2,12 +2,9 @@ import os
 import numpy as np
 import shutil
 
-SOURCE_DIR = "data/src"
-TARGET_DIR = "src/dst"
-
-TOTAL_COUNT = 100
-TRAIN_COUNT = int(TOTAL_COUNT * 0.6)
-TEST_COUNT = int(TOTAL_COUNT * 0.2)
+# SOURCE_DIR = "data/src"
+SOURCE_DIR = "D:/dev/datasets/1_merge_nemo"
+TARGET_DIR = "data/face_nemo"
 
 os.makedirs(TARGET_DIR, exist_ok=True)
 os.makedirs(f"{TARGET_DIR}/train", exist_ok=True)
@@ -17,31 +14,43 @@ os.makedirs(f"{TARGET_DIR}/test", exist_ok=True)
 os.makedirs(f"{TARGET_DIR}/test/images", exist_ok=True)
 os.makedirs(f"{TARGET_DIR}/test/annotations", exist_ok=True)
 
-for dog_class in os.listdir(SOURCE_DIR):
-    print(f"{dog_class}: ", end="")
-    dir = SOURCE_DIR + "/" + dog_class
-    class_name = dog_class.replace("new_", "")
 
-    cnt = 0
-    for file in np.array(sorted(os.listdir(dir))):
+image_train_count = 0
+image_test_count = 0
+for pet_class in os.listdir(SOURCE_DIR):
+    print(f"{pet_class}:")
+    dir = SOURCE_DIR + "/" + pet_class
+    class_name = pet_class.replace("new_", "")
+
+    total_count = len(os.listdir(dir))
+    train_count = int(total_count * 0.8)
+    test_count = int(total_count * 0.2)
+
+    sub_total_cnt = 0
+    for file in np.array(os.listdir(dir)):
         fname = file.split(".")[0]
         ext = file.split(".")[-1]
 
-        if ext != "jpg" or ext != "png":
+        sub_total_cnt += 1
+
+        if ext != "jpg" and ext != "png":
             continue
 
-        if cnt <= TRAIN_COUNT:
-            shutil.copy(f"{dir}/{fname}.jpg", f"{TARGET_DIR}/train/images/{dog_class}_{cnt}.{ext}")
-            shutil.copy(f"{dir}/{fname}.json", f"{TARGET_DIR}/train/annotations/{dog_class}_{cnt}.json")
+        if not os.path.exists(f"{dir}/{fname}.{ext}") or not os.path.exists(f"{dir}/{fname}.json"):
+            print(f"missing file: {fname}.{ext} or {fname}.json")
+            continue
+
+        if sub_total_cnt <= train_count:
+            target_root = f"{TARGET_DIR}/train"
+            shutil.copy(f"{dir}/{fname}.{ext}", f"{target_root}/images/{image_train_count}.{ext}")
+            shutil.copy(f"{dir}/{fname}.json", f"{target_root}/annotations/{image_train_count}.json")
+            image_train_count += 1
         else:
-            shutil.copy(f"{dir}/{fname}.jpg", f"{TARGET_DIR}/test/images/{dog_class}_{cnt}.{ext}")
-            shutil.copy(f"{dir}/{fname}.json", f"{TARGET_DIR}/test/annotations/{dog_class}_{cnt}.json")
+            target_root = f"{TARGET_DIR}/test"
+            shutil.copy(f"{dir}/{fname}.{ext}", f"{target_root}/images/{image_test_count}.{ext}")
+            shutil.copy(f"{dir}/{fname}.json", f"{target_root}/annotations/{image_test_count}.json")
+            image_test_count += 1
 
-        if cnt >= TRAIN_COUNT + TEST_COUNT:
-            break
+    print("train count, test count:", train_count, test_count)
 
-        cnt += 1
-
-    print("done")
-
-print("All done. train count, test count:", TRAIN_COUNT, TEST_COUNT)
+print("All done")

@@ -6,5 +6,5 @@ __pycache__
 /data/dst
 /data/face_nemo
 /data/lfw_dst
-/data/vggface_dst
+/data/vggface_bbox_dst
 /weights
