@@ -183,20 +183,9 @@ def cropFace(img):
     return imgs_croped, boxes, classes, scores
 
 
-def cropMain():
-    fnames = [
-        "data/sample/human0.jpg",
-        "data/sample/human1.jpg",
-        "data/sample/human2.jpg",
-    ]
-    # fnames = [
-    #     "data/sample/dog0.jpg",
-    #     "data/sample/dog1.jpg",
-    #     "data/sample/dog2.jpg",
-    # ]
-
-    for i, fname in enumerate(fnames):
-        img = getImage(fname)
+def faceCropRun(savedir, fpaths):
+    for i, fpath in enumerate(fpaths):
+        img = getImage(fpath)
         xfrm_img = xfrm(img).to(device)
 
         body_imgs, body_boxes, body_classes, body_scores = cropBody(img, xfrm_img)
@@ -205,10 +194,8 @@ def cropMain():
         if len(xfrm_body_imgs) > 0:
             face_imgs, face_boxes, face_classes, face_scores = cropFace(xfrm_body_imgs[0])
         else:
-            print(f"no body detected, try to find face: {i} - {fname}")
+            print(f"no body detected, try to find face: {i} - {fpath}")
             face_imgs, face_boxes, face_classes, face_scores = cropFace(xfrm_img)
-
-        os.makedirs(SAVE_PATH, exist_ok=True)
 
         # result_imgs = []
         # for im in face_imgs:
@@ -218,6 +205,21 @@ def cropMain():
         #     result_imgs.append(im)
 
         result_imgs = face_imgs
-        saveImages(SAVE_PATH, result_imgs, face_classes, face_scores, color_range=255, filename=i)
+        saveImages(savedir, result_imgs, face_classes, face_scores, color_range=255, filename=i)
 
-cropMain()
+
+fnames = [
+    "data/sample/human0.jpg",
+    "data/sample/human1.jpg",
+    "data/sample/human2.jpg",
+]
+# fnames = [
+#     "data/sample/dog0.jpg",
+#     "data/sample/dog1.jpg",
+#     "data/sample/dog2.jpg",
+# ]
+
+dst_path = SAVE_PATH
+
+os.makedirs(dst_path, exist_ok=True)
+faceCropRun(dst_path, fnames)
