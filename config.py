@@ -3,15 +3,15 @@
 # PARSE_MODE = "xml"  # VOC xml format
 # CLASS_COUNT = 4  # background, no_mask, mask, wrong mask
 
-# DATASET_NAME = "humanface_bbox"
-# DATA_ROOT = "data/vggface_bbox_dst"
-# PARSE_MODE = "csv"  # single line csv format
-# CLASS_COUNT = 2  # background, face
-
-DATASET_NAME = "animalface"
-DATA_ROOT = "data/face_nemo"
-PARSE_MODE = "json"  # LabelMe json format
+DATASET_NAME = "humanface_bbox"
+DATA_ROOT = "data/vggface_bbox_dst"
+PARSE_MODE = "csv"  # single line csv format
 CLASS_COUNT = 2  # background, face
+
+# DATASET_NAME = "animalface"
+# DATA_ROOT = "data/face_nemo"
+# PARSE_MODE = "json"  # LabelMe json format
+# CLASS_COUNT = 2  # background, face
 
 MODEL_NAME = "faster_rcnn_resnet50_fpn_v2"
 
