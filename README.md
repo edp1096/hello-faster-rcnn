@@ -21,11 +21,6 @@ python3 ./train_model.py
 python3 ./test_model.py
 ```
 
-* Detect object using COCO pretrained
-```sh
-python3 ./detect_coco.py
-```
-
 
 ## 출처
 * Face mask detection
