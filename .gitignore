@@ -5,6 +5,7 @@ __pycache__
 /data/src
 /data/dst
 /data/face_nemo
+/data/face_keypoints
 /data/lfw_dst
 /data/vggface_bbox_dst
 /weights
