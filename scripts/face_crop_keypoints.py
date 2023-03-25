@@ -189,15 +189,34 @@ def faceCropRun(savedir, im_fnames, an_fnames):
     for i, im_fname in enumerate(im_fnames):
         img = getImage(im_fname)
         xfrm_img = xfrm(img).to(device)
+        crop_box = [0.0, 0.0, 0.0, 0.0]
 
         body_imgs, body_boxes, body_classes, body_scores = cropBody(img, xfrm_img)
         xfrm_body_imgs = [xfrm(im).to(device) for im in body_imgs]
 
         if len(xfrm_body_imgs) > 0:
+            crop_box = [
+                body_boxes[0][0][0].cpu().numpy(),
+                body_boxes[0][0][1].cpu().numpy(),
+                body_boxes[0][1][0].cpu().numpy(),
+                body_boxes[0][1][1].cpu().numpy(),
+            ]
+
             face_imgs, face_boxes, face_classes, face_scores = cropFace(xfrm_body_imgs[0])
         else:
             print(f"no body detected, try to find face: {i} - {im_fname}")
             face_imgs, face_boxes, face_classes, face_scores = cropFace(xfrm_img)
+
+        if len(face_boxes) == 0:
+            print(f"facebox is missing: {i} - {im_fname}")
+            continue
+
+        crop_box = [
+            crop_box[0] + face_boxes[0][0].cpu().numpy(),
+            crop_box[1] + face_boxes[0][1].cpu().numpy(),
+            crop_box[0] + face_boxes[0][2].cpu().numpy(),
+            crop_box[1] + face_boxes[0][3].cpu().numpy(),
+        ]
 
         result_imgs = face_imgs
 
@@ -206,34 +225,29 @@ def faceCropRun(savedir, im_fnames, an_fnames):
 
         # points [534.1818  309.15152 797.8182  315.21213 709.9394  537.9394 ]
         # face_boxes [tensor([228.5144,   0.0000, 940.6824, 685.2303], device='cuda:0')]
-        if len(face_boxes) == 0:
-            print(f"facebox is missing: {i} - {im_fname}")
-            continue
         if points[0] < face_boxes[0][0] or points[1] < face_boxes[0][1]:
             print(f"incorrect facebox: {i} - {im_fname} / upper(left eye) side")
             continue
         if points[2] > face_boxes[0][2] or points[3] < face_boxes[0][1]:
             print(f"incorrect facebox: {i} - {im_fname} / upper(right eye) side")
-            print(points)
-            print(face_boxes)
             continue
         if points[4] < face_boxes[0][0] or points[4] > face_boxes[0][2] or points[5] > face_boxes[0][3]:
             print(f"incorrect facebox: {i} - {im_fname} / lower(nose) side")
             continue
 
-        new_points = points - np.array(
+        new_points = np.array(
             [
-                face_boxes[0][0].cpu().numpy(),
-                face_boxes[0][1].cpu().numpy(),
-                face_boxes[0][0].cpu().numpy(),
-                face_boxes[0][1].cpu().numpy(),
-                face_boxes[0][0].cpu().numpy(),
-                face_boxes[0][1].cpu().numpy(),
+                points[0] - crop_box[0],
+                points[1] - crop_box[1],
+                points[2] - crop_box[0],
+                points[3] - crop_box[1],
+                points[4] - crop_box[0],
+                points[5] - crop_box[1],
             ]
         )
 
-        saveImages(f"{savedir}/images", result_imgs, face_classes, face_scores, color_range=255, filename=j)
-        np.savetxt(f"{savedir}/annotations/{j}.csv", new_points, delimiter=",", fmt="%f")
+        saveImages(f"{savedir}/images", [result_imgs[0]], face_classes, face_scores, color_range=255, filename=j)
+        np.savetxt(f"{savedir}/annotations/{j}.csv", [new_points], delimiter=",", fmt="%f")
 
         j += 1
 
@@ -247,9 +261,6 @@ for dir in os.listdir(src_root):
     im_fpaths, an_fpaths = [], []
     for fname in os.listdir(os.path.join(src_root, f"{dir}/images")):
         fname_base = os.path.splitext(fname)[0]
-
-        if fname_base != "1013":
-            continue
 
         im_fpaths.append(os.path.join(src_root, f"{dir}/images", fname))
         an_fpaths.append(os.path.join(src_root, f"{dir}/annotations", fname_base + ".csv"))
