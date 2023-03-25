@@ -21,6 +21,9 @@ python3 ./train_model.py
 python3 ./test_model.py
 ```
 
+## 할거
+* test/1013
+
 
 ## 출처
 * Face mask detection

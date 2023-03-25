@@ -214,6 +214,8 @@ def faceCropRun(savedir, im_fnames, an_fnames):
             continue
         if points[2] > face_boxes[0][2] or points[3] < face_boxes[0][1]:
             print(f"incorrect facebox: {i} - {im_fname} / upper(right eye) side")
+            print(points)
+            print(face_boxes)
             continue
         if points[4] < face_boxes[0][0] or points[4] > face_boxes[0][2] or points[5] > face_boxes[0][3]:
             print(f"incorrect facebox: {i} - {im_fname} / lower(nose) side")
@@ -245,6 +247,9 @@ for dir in os.listdir(src_root):
     im_fpaths, an_fpaths = [], []
     for fname in os.listdir(os.path.join(src_root, f"{dir}/images")):
         fname_base = os.path.splitext(fname)[0]
+
+        if fname_base != "1013":
+            continue
 
         im_fpaths.append(os.path.join(src_root, f"{dir}/images", fname))
         an_fpaths.append(os.path.join(src_root, f"{dir}/annotations", fname_base + ".csv"))
