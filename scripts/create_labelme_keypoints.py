@@ -15,8 +15,8 @@ os.makedirs(f"{TARGET_DIR}/test", exist_ok=True)
 os.makedirs(f"{TARGET_DIR}/test/images", exist_ok=True)
 os.makedirs(f"{TARGET_DIR}/test/annotations", exist_ok=True)
 
-# image_limit_per_subdir = 100
-image_limit_per_subdir = 10
+image_limit_per_subdir = 500
+# image_limit_per_subdir = 10
 image_train_count = 0
 image_test_count = 0
 for pet_class in os.listdir(SOURCE_DIR):

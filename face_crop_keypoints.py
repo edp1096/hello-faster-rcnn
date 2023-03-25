@@ -11,6 +11,7 @@ from modules.image import getImage, cropImage, saveImages
 from modules.prediction import getPredictions, getPredictionsCOCO
 
 import os
+import numpy as np
 
 
 # device = "cpu"
@@ -183,9 +184,10 @@ def cropFace(img):
     return imgs_croped, boxes, classes, scores
 
 
-def faceCropRun(savedir, fnames):
-    for i, fname in enumerate(fnames):
-        img = getImage(fname)
+def faceCropRun(savedir, im_fnames, an_fnames):
+    j = 0
+    for i, im_fname in enumerate(im_fnames):
+        img = getImage(im_fname)
         xfrm_img = xfrm(img).to(device)
 
         body_imgs, body_boxes, body_classes, body_scores = cropBody(img, xfrm_img)
@@ -194,27 +196,68 @@ def faceCropRun(savedir, fnames):
         if len(xfrm_body_imgs) > 0:
             face_imgs, face_boxes, face_classes, face_scores = cropFace(xfrm_body_imgs[0])
         else:
-            print(f"no body detected, try to find face: {i} - {fname}")
+            print(f"no body detected, try to find face: {i} - {im_fname}")
             face_imgs, face_boxes, face_classes, face_scores = cropFace(xfrm_img)
 
         result_imgs = face_imgs
-        saveImages(savedir, result_imgs, face_classes, face_scores, color_range=255, filename=i)
+
+        an_fname = an_fnames[i]
+        points = np.loadtxt(an_fname, delimiter=",", dtype=np.float32)
+
+        # points [534.1818  309.15152 797.8182  315.21213 709.9394  537.9394 ]
+        # face_boxes [tensor([228.5144,   0.0000, 940.6824, 685.2303], device='cuda:0')]
+        if len(face_boxes) == 0:
+            print(f"facebox is missing: {i} - {im_fname}")
+            continue
+        if points[0] < face_boxes[0][0] or points[1] < face_boxes[0][1]:
+            print(f"incorrect facebox: {i} - {im_fname} / upper(left eye) side")
+            continue
+        if points[2] > face_boxes[0][2] or points[3] < face_boxes[0][1]:
+            print(f"incorrect facebox: {i} - {im_fname} / upper(right eye) side")
+            continue
+        if points[4] < face_boxes[0][0] or points[4] > face_boxes[0][2] or points[5] > face_boxes[0][3]:
+            print(f"incorrect facebox: {i} - {im_fname} / lower(nose) side")
+            continue
+
+        new_points = points - np.array(
+            [
+                face_boxes[0][0].cpu().numpy(),
+                face_boxes[0][1].cpu().numpy(),
+                face_boxes[0][0].cpu().numpy(),
+                face_boxes[0][1].cpu().numpy(),
+                face_boxes[0][0].cpu().numpy(),
+                face_boxes[0][1].cpu().numpy(),
+            ]
+        )
+
+        saveImages(f"{savedir}/images", result_imgs, face_classes, face_scores, color_range=255, filename=j)
+        np.savetxt(f"{savedir}/annotations/{j}.csv", new_points, delimiter=",", fmt="%f")
+
+        j += 1
 
 
 src_root = "data/face_keypoints"
 dst_root = SAVE_PATH
 os.makedirs(dst_root, exist_ok=True)
 
-files_list = {}
+images_list, annotations_list = {}, {}
 for dir in os.listdir(src_root):
-    fpaths = []
-    for fname in os.listdir(os.path.join(src_root, dir)):
-        fpaths.append(os.path.join(src_root, dir, fname))
+    im_fpaths, an_fpaths = [], []
+    for fname in os.listdir(os.path.join(src_root, f"{dir}/images")):
+        fname_base = os.path.splitext(fname)[0]
 
-    files_list[dir] = fpaths
+        im_fpaths.append(os.path.join(src_root, f"{dir}/images", fname))
+        an_fpaths.append(os.path.join(src_root, f"{dir}/annotations", fname_base + ".csv"))
 
-for dir, fpaths in files_list.items():
-    dst_root = os.path.join(SAVE_PATH, dir)
+    images_list[dir] = im_fpaths
+    annotations_list[dir] = an_fpaths
 
-    os.makedirs(dst_root, exist_ok=True)
-    faceCropRun(dst_root, fpaths)
+for dir, im_fpaths in images_list.items():
+    dst_path = os.path.join(SAVE_PATH, dir)
+
+    os.makedirs(dst_path, exist_ok=True)
+    os.makedirs(f"{dst_path}/images", exist_ok=True)
+    os.makedirs(f"{dst_path}/annotations", exist_ok=True)
+
+    an_fpaths = annotations_list[dir]
+    faceCropRun(dst_path, im_fpaths, an_fpaths)
