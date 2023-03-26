@@ -223,16 +223,8 @@ def faceCropRun(savedir, im_fnames, an_fnames):
         an_fname = an_fnames[i]
         points = np.loadtxt(an_fname, delimiter=",", dtype=np.float32)
 
-        # points [534.1818  309.15152 797.8182  315.21213 709.9394  537.9394 ]
-        # face_boxes [tensor([228.5144,   0.0000, 940.6824, 685.2303], device='cuda:0')]
-        if points[0] < face_boxes[0][0] or points[1] < face_boxes[0][1]:
-            print(f"incorrect facebox: {i} - {im_fname} / upper(left eye) side")
-            continue
-        if points[2] > face_boxes[0][2] or points[3] < face_boxes[0][1]:
-            print(f"incorrect facebox: {i} - {im_fname} / upper(right eye) side")
-            continue
-        if points[4] < face_boxes[0][0] or points[4] > face_boxes[0][2] or points[5] > face_boxes[0][3]:
-            print(f"incorrect facebox: {i} - {im_fname} / lower(nose) side")
+        if len(points) < 6:
+            print(f"incorrect facebox: {i} - {im_fname} / no points")
             continue
 
         new_points = np.array(
@@ -245,6 +237,16 @@ def faceCropRun(savedir, im_fnames, an_fnames):
                 points[5] - crop_box[1],
             ]
         )
+
+        if new_points[0] < 0 or new_points[1] < 0:
+            print(f"incorrect facebox: {i} - {im_fname} / upper(left eye) side")
+            continue
+        if new_points[2] > crop_box[2] - crop_box[0] or new_points[3] < 0:
+            print(f"incorrect facebox: {i} - {im_fname} / upper(right eye) side")
+            continue
+        if new_points[4] < 0 or new_points[4] > crop_box[2] - crop_box[0] or new_points[5] > crop_box[3] - crop_box[1]:
+            print(f"incorrect facebox: {i} - {im_fname} / lower(nose) side")
+            continue
 
         saveImages(f"{savedir}/images", [result_imgs[0]], face_classes, face_scores, color_range=255, filename=j)
         np.savetxt(f"{savedir}/annotations/{j}.csv", [new_points], delimiter=",", fmt="%f")
